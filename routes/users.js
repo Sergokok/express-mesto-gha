@@ -17,7 +17,7 @@ userRouter.get(
       userId: Joi.string().regex(/^[0-9a-f]{24}$/i),
     }),
   }),
-  getUserId // <--- controller
+  getUserId, // <--- controller
 );
 
 userRouter.patch(
@@ -28,7 +28,7 @@ userRouter.patch(
       about: Joi.string().required().min(2).max(30),
     }),
   }),
-  editUserProfile
+  editUserProfile,
 );
 
 userRouter.patch(
@@ -40,7 +40,7 @@ userRouter.patch(
         .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
     }),
   }),
-  updateUserAvatar
+  updateUserAvatar,
 );
 
 module.exports = userRouter;

@@ -21,9 +21,19 @@ app.use(express.json());
 
 app.post(
   '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      password: Joi.string().required(),
+      email: Joi.string().required().email(),
+    }),
+  }),
+  login,
+);
+app.post(
+  '/signup',
   celebrate({ // <--- celebrate middleware
-    body: Joi.object().keys({   // <--- Joi middleware
-      password: Joi.string().min(2).max(30).required(),
+    body: Joi.object().keys({ // <--- Joi middleware
+      name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
       avatar: Joi.string().regex(
         /^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/,
@@ -58,7 +68,7 @@ async function main(reg, res, next) {
   try {
     await mongoose.connect('mongodb://localhost:27017/mestodb', {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      useUnifiedTopology: false,
     });
     await app.listen(PORT);
   } catch (err) {
@@ -70,7 +80,7 @@ main();
 
 // app.use((req, res, next) => {
 //   req.user = {
-//     _id: '66339764ea19a0ac0c6773c3f', // вставьте сюда _id созданного в предыдущем пункте пользователя
+// _id: '66339764ea19a0ac0c6773c3f', // вставьте сюда _id созданного пользователя
 //   };
 //
 //   next();

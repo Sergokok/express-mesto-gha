@@ -2,7 +2,7 @@ const Card = require('../models/cards');
 
 const ErrorBadRequest = require('../errors/ErrorBadRequest');
 const ErrorNotFound = require('../errors/ErrorNotFound');
-const ErrorForbidden = require('../errors/ErrorForbidden');
+const ForbiddenError = require('../errors/ForbiddenError');
 const ErrorServer = require('../errors/ErrorServer');
 
 // const DATA_ERROR_CODE = 400;
@@ -15,7 +15,8 @@ module.exports.getCards = (req, res, next) => {
       res.send({ cards });
     })
     .catch(() => {
-      next(new ErrorServer('Ошибка на сервере')) });
+      next(new ErrorServer('Ошибка на сервере'));
+    });
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -34,14 +35,14 @@ module.exports.createCard = (req, res, next) => {
     });
 };
 
-module.exports.deleteCard = (req, res, next) => {
+module.exports.deleteCard = async (req, res, next) => {
   try {
-   const card = await Card.findByIdAndDelete(req.params.cardId);
+    const card = await Card.findByIdAndDelete(req.params.cardId);
     if (!card) {
       return next(new ErrorNotFound('Карточка не найдена'));
     }
     if (card.owner.toString() !== req.user._id) {
-      return next(new ErrorForbidden('Данную карточку удалить невозможно'));
+      return next(new ForbiddenError('Данную карточку удалить невозможно'));
     }
     return res.status(200).send({ card });
   } catch (err) {
@@ -79,50 +80,38 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true, ranValidators: true },
   )
     .then((card) => {
       if (card) {
         return res.send({ card });
       }
-      return res
-        .status(NOT_FOUND_ERROR)
-        .send({ message: 'Карточка не найдена' });
+      return next(new ErrorNotFound('Карточка не найдена'));
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res
-          .status(DATA_ERROR_CODE)
-          .send({ message: 'Данные переданы некорректно' });
+        return next(new ErrorBadRequest('Данные переданы некорректно'));
       }
-      return res
-        .status(SERVER_ERROR_CODE)
-        .send({ message: 'Произошла ошибка на сервере' });
+      return next(new ErrorServer('Ошибка на сервере'));
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true, ranValidators: true },
   )
     .then((card) => {
       if (card) {
         return res.send({ card });
       }
-      return res
-        .status(NOT_FOUND_ERROR)
-        .send({ message: 'Карточка не найдена' });
+      return next(new ErrorNotFound('Карточка не найдена'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(DATA_ERROR_CODE)
-          .send({ message: 'Данные переданы некорректно' });
+        return next(new ErrorBadRequest('Данные переданы некорректно'));
       }
-      return res
-        .status(SERVER_ERROR_CODE)
-        .send({ message: 'Произошла ошибка на сервере' });
+      return next(new ErrorServer('Ошибка на сервере'));
     });
 };

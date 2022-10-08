@@ -26,7 +26,6 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Ошибка валидации url адреса',
     },
-    }
   },
   password: {
     type: String,
