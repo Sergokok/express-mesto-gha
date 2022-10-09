@@ -147,6 +147,8 @@ module.exports.updateUserAvatar = (req, res, next) => {
     });
 };
 
+const { JWT_SECRET = 'Какой-то_код' } = process.env;
+
 module.exports.login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
@@ -158,7 +160,9 @@ module.exports.login = async (req, res, next) => {
     if (!validPassword) {
       return next(new AuthorizationError('Неправильные почта или пароль'));
     }
-    const token = jwt.sign({ _id: user._id }, 'secret-key');
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
     res.cookie('jwt', token, {
       httpOnly: true,
       sameSite: true,
