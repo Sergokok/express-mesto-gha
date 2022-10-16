@@ -8,10 +8,6 @@ const ErrorConflict = require('../errors/ErrorConflict');
 const AuthorizationError = require('../errors/AuthorizationError');
 const ErrorServer = require('../errors/ErrorServer');
 
-// const DATA_ERROR_CODE = 400;
-// const NOT_FOUND_ERROR = 404;
-// const SERVER_ERROR_CODE = 500;
-
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
@@ -80,21 +76,6 @@ module.exports.getUserId = (req, res, next) => {
     });
 };
 
-//   User.findById(req.params.userId)
-//     .then((user) => {
-//       if (user) {
-//         return res.send({ user });
-//       }
-//       return next(new ErrorNotFound('Пользователь не найден'));
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         return next(new ErrorBadRequest('Переданы некорректные данные'));
-//       }
-//       return next(new ErrorServer('Ошибка на сервере'));
-//     });
-// };
-
 module.exports.editUserProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
@@ -151,7 +132,7 @@ module.exports.login = async (req, res, next) => {
       httpOnly: true,
       sameSite: true,
       maxAge: 3600 * 24 * 7,
-      token: `JWT${token}`,
+      // token: `JWT${token}`,
     });
     return res.status(200).send(user);
   } catch (err) {
