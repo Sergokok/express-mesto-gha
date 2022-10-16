@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-// app.js — входной файл
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');

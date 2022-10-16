@@ -51,22 +51,6 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-// module.exports.createUser = (req, res) => {
-//   const { name, about, avatar } = req.body;
-//   User.create({ name, about, avatar })
-//     .then((user) => {
-//       res.send({ data: user });
-//     })
-//     .catch((err) => {
-//       if (err.name === 'ValidationError') {
-//         return res.status(DATA_ERROR_CODE).send({
-//           message: 'При создании пользователя данные переданы некорректно',
-//         });
-//       }
-//       return res.status(SERVER_ERROR_CODE).send({ message: 'Произошла ошибка на сервере' });
-//     });
-// };
-
 module.exports.getUserInfo = async (req, res, next) => {
   const id = req.user._id;
   try {
