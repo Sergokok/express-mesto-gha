@@ -35,23 +35,37 @@ module.exports.createCard = (req, res, next) => {
     });
 };
 
-module.exports.deleteCard = async (req, res, next) => {
-  try {
-    const card = await Card.findByIdAndDelete(req.params.cardId);
-    if (!card) {
-      return next(new ErrorNotFound('Карточка не найдена'));
-    }
-    if (card.owner.toString() !== req.user._id) {
-      return next(new ForbiddenError('Данную карточку удалить невозможно'));
-    }
-    return res.status(200).send({ card });
-  } catch (err) {
-    if (err.name === 'CastError') {
-      return next(new ErrorBadRequest('Некорректные данные запроса'));
-    }
-    return next(new ErrorServer('Ошибка на сервере'));
-  }
+module.exports.getCard = (req, res, next) => {
+  const { cardId } = req.params;
+  Card.findById(cardId)
+    .orFail(() => new ErrorNotFound('Карточка с таким id не найдена'))
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
+        return next(new ForbiddenError('Нет прав на удаление чужой карточки'));
+      }
+      return card.remove()
+        .then(() => res.send({ message: 'Карточка удалена' }));
+    })
+    .catch(next);
 };
+
+// module.exports.deleteCard = async (req, res, next) => {
+//   try {
+//     const card = await Card.findByIdAndDelete(req.params.cardId);
+//     if (!card) {
+//       return next(new ErrorNotFound('Карточка не найдена'));
+//     }
+//     if (card.owner.toString() !== req.user._id) {
+//       return next(new ForbiddenError('Данную карточку удалить невозможно'));
+//     }
+//     return res.status(200).send({ card });
+//   } catch (err) {
+//     if (err.name === 'CastError') {
+//       return next(new ErrorBadRequest('Некорректные данные запроса'));
+//     }
+//     return next(new ErrorServer('Ошибка на сервере'));
+//   }
+// };
 
 //   Card.findByIdAndDelete(req.params.cardId)
 //     .then((card) => {

@@ -41,7 +41,7 @@ app.post(
       email: Joi.string().required().email(),
     }),
   }),
-  createUser, // <--- createUser middleware from controllers/users.js
+  createUser,
 );
 
 app.use(auth);
